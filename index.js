@@ -1,53 +1,56 @@
 require('dotenv').config();
 
-const express=require('express')
+const express = require('express')
 
-const jwt=require('jsonwebtoken')
-const tokenMiddleware=require('./utils/middlewareAuth')
-const http=require('http');
+const db = require('./utils/db')
 
-var app=express();
-var server=http.Server(app)
+const jwt = require('jsonwebtoken')
+const tokenMiddleware = require('./utils/middlewareAuth')
+const http = require('http');
+
+var app = express();
+var server = http.Server(app)
 
 
 
 app.use(express.json());
 
 
-app.get('/',(req,res)=>{
+app.get('/', (req, res) => {
     res.send("Page Visited");
 })
 
-app.post('/login',(req,res)=>{
+app.post('/login', (req, res) => {
 
     //Authenticate Id/Pwd from Database
-    
-const userObj={userid:req.body.name};
-const token=jwt.sign(userObj,process.env.ACCESS_TOKEN,{
-    expiresIn: "30m",
-  })
 
-res.json({accesstoken:token})   
+    const userObj = { userid: req.body.name };
+    const token = jwt.sign(userObj, process.env.ACCESS_TOKEN, {
+        expiresIn: "30m",
+    })
+
+    res.json({ accesstoken: token })
 
 })
 
-app.post('/register',(req,res)=>{
+app.post('/register', (req, res) => {
 
     //Authenticate Id/Pwd from Database
-    
-const userObj={userid:req.body.name};
-const token=jwt.sign(userObj,process.env.ACCESS_TOKEN)
+    console.log(req.body);
+    const userObj = { firstName: req.body.firstname, lastName: req.body.lastname, Email: req.body.email, pwd: req.body.password }
+    if (userObj == null) return res.send("Please fill all the fields.")
 
-res.json({accesstoken:token})   
-
+    db.db.collection("userInfo").insertOne(userObj);
+    res.statusMessage="Registration Successful"
+    return res.status(200).end()
 })
 
-app.get('/pageOne',tokenMiddleware,(req,res)=>{
+app.get('/pageOne', tokenMiddleware, (req, res) => {
     res.send("Page Visited");
 })
 
-server.listen(3000,()=>{
-console.log('Server Started')
+server.listen(3000, () => {
+    console.log('Server Started')
 });
 
 
