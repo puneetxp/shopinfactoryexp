@@ -24,7 +24,7 @@ app.post('/login',(req,res)=>{
     
 const userObj={userid:req.body.name};
 const token=jwt.sign(userObj,process.env.ACCESS_TOKEN,{
-    expiresIn: "25s",
+    expiresIn: "30m",
   })
 
 res.json({accesstoken:token})   
